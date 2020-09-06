@@ -21,4 +21,7 @@ public interface IMAppUserRepo extends JpaRepository<AppUser, Integer>{
 	
 	@Transactional	
 		List<AppUser> findByEnabled(boolean enabled);
+	
+	@Transactional	
+		long countByEnabled(boolean enabled);
 }
