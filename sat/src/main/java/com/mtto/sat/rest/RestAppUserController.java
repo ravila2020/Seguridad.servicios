@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mtto.sat.exception.ApiRequestException;
+import com.mtto.sat.log.logRegistra;
 import com.mtto.sat.modelo.AppUser;
 import com.mtto.sat.modelo.LogTransacction;
 import com.mtto.sat.repositorio.IMAppUserRepo;
@@ -42,7 +43,9 @@ public class RestAppUserController {
 	
 	@Autowired
 	private IMLogTransacctionRepo repLog;
-	
+
+	@Autowired
+	private logRegistra registrar;
 	
 	
 	@GetMapping
@@ -112,34 +115,13 @@ public class RestAppUserController {
 
 	@PostMapping
 	public  Optional<AppUser>  creaUsuario(@RequestBody AppUser NuevoUsuario){
+		registrar.registra("creaUsuario", "AppUser", "/Users", NuevoUsuario);
     	try {
-    		ObjectMapper mapper = new ObjectMapper();
-    		String jsonInString = mapper.writeValueAsString(NuevoUsuario);
-    		System.out.print(" + Objeto: " + jsonInString);
-    		
-	    	Date date = new Date();
-	    	LogTransacction log = new LogTransacction();
-	    	log.setActionName("creaUsuario");
-	    	log.setEntityName("AppUser");
-	    	log.setOfficeId(0);
-	    	log.setApiGetUrl("/Users");
-	    	log.setResourceId(0);
-	    	log.setSubresourceId(0);
-	    	log.setCommandAsJson(jsonInString);
-	    	log.setMakerId(0);
-	    	log.setMadeOnDate(date);
-	    	log.setCheckerId(0);
-	    	log.setCheckedOnDate(date);
-	    	log.setProcessingResultEnum(0);
-			repLog.save(log);
-			
 			String idAppUser = NuevoUsuario.getUsername();
 	    	String CryptoPass = codificador.encode(NuevoUsuario.getPassword());
 	    	NuevoUsuario.setPassword(CryptoPass);
 			AppUser usuarioProc = repAppUser.save(NuevoUsuario);
 			System.out.print(" + RestAppUserController insertar id: " + usuarioProc.getId() + " " + usuarioProc.getUsername() + "\n ");
-		    
-	
 	        return repAppUser.findByUsername(usuarioProc.getUsername());
 	    	} catch (Exception ex) {
 	    		throw new ApiRequestException("Upsi");
