@@ -41,6 +41,7 @@ public class AnswAuth {
 	private String name; 
 	private String description; 
 	private boolean isDisable;
+	private String token;
 //	
 //************************************************************* GETTERS/SETTERS
 //	
@@ -109,6 +110,12 @@ public class AnswAuth {
 	}
 	public void setDisable(boolean isDisable) {
 		this.isDisable = isDisable;
+	}
+	public String getToken() {
+		return token;
+	}
+	public void setToken(String token) {
+		this.token = token;
 	}
 
 	

@@ -4,6 +4,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -26,6 +28,7 @@ import com.mtto.sat.repositorio.IMLogTransacctionRepo;
 import com.mtto.sat.result.GenericResponse;
 
 import Respuesta.AppUserPag;
+import io.jsonwebtoken.Jwts;
 
 //@CrossOrigin(origins = "http://localhost:4200",maxAge = 3600)
 @RestController
@@ -49,8 +52,21 @@ public class RestAppUserController {
 	
 	
 	@GetMapping
-	public List<AppUser> listar(){
+	public List<AppUser> listar(HttpServletRequest peticion){
 		boolean enabled = true;
+		
+		String token = peticion.getHeader("Authorization");
+		System.out.print(" + RestAppUserController token: " + token + "\n ");
+		if (token != null) {
+			String user = Jwts.parser()
+					.setSigningKey("0neProj3ct")
+					.parseClaimsJws(token.replace("Bearer",  ""))
+					.getBody()
+					.getSubject();
+			System.out.print(" + RestAppUserController Usuario: " + user + "\n ");
+		}
+		
+		
 		return repAppUser.findByEnabled(enabled);
 	}
 

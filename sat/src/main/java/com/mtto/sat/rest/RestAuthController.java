@@ -27,8 +27,10 @@ import com.mtto.sat.repositorio.IMRoleRepo;
 
 import Respuesta.AnswAuth;
 import Respuesta.EntradaAuth;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 
-@CrossOrigin(origins = "http://localhost:4200",maxAge = 3600)
+//@CrossOrigin(origins = "http://localhost:4200",maxAge = 3600)
 @RestController
 @RequestMapping("/Auth")
 public class RestAuthController {
@@ -148,6 +150,14 @@ public class RestAuthController {
         	}
         	else {
         		Respuesta.setDescription("Acceso autorizado");
+        		String token = Jwts.builder()
+        				.setSubject(autoriz)
+        				.signWith(SignatureAlgorithm.HS512,"0neProj3ct")
+        				.compact();
+        		Respuesta.setToken("Bearer" + token);
+        		Usuario.setIsDeleted(0);
+        		Usuario.setNonlocked(true);
+        		repAppUser.save(Usuario);
         	}
 
     	} else {
