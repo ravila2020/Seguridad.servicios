@@ -69,26 +69,5 @@ public class SatApplication {
 	public RestTemplate restTemplate(RestTemplateBuilder builder) {
 		return builder.build();
 	}
-/*
-	@Bean
-	public CommandLineRunner run(RestTemplate restTemplate) throws Exception {
-		return args -> {
-			final String uri = "http://10.200.14.110:3091/rest/BANSEFI/LOGON001";
-		     
-//		    RestTemplate restTemplateHost = new RestTemplate();
-			HttpHeaders headers = new HttpHeaders();
-			headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
-			headers.setBasicAuth("BANSJM3","SOPTEC03");
-			log.info(headers.toString());
-			 
-			log.info("{  \"USUARIO\": \"BANSJM3\",  \"PASSWORD\": \"SOPTEC03\",  \"NEWPASSWORD\": \"\",  \"IP\": \"X\"}");
-		    
-			HttpEntity<String> entity = new HttpEntity<String>("{  \"USUARIO\": \"BANSJM3\",  \"PASSWORD\": \"SOPTEC03\",  \"NEWPASSWORD\": \"\",  \"IP\": \"X\"}", headers);
-   
-			ResponseEntity<String> result = restTemplate.exchange(uri, HttpMethod.POST, entity, String.class);
-		     
-			log.info(result.toString());
 
-		};    
-	}*/
 }
