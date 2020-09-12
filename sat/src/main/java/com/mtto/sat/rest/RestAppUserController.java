@@ -56,14 +56,14 @@ public class RestAppUserController {
 		boolean enabled = true;
 		
 		String token = peticion.getHeader("Authorization");
-		System.out.print(" + RestAppUserController token: " + token + "\n ");
+		System.out.print("\n\n + RestAppUserController token: " + token + "\n ");
 		if (token != null) {
 			String user = Jwts.parser()
 					.setSigningKey("0neProj3ct")
 					.parseClaimsJws(token.replace("Bearer",  ""))
 					.getBody()
 					.getSubject();
-			System.out.print(" + RestAppUserController Usuario: " + user + "\n ");
+			System.out.print("\n\n + RestAppUserController Usuario: " + user + "\n ");
 		}
 		
 		
@@ -78,8 +78,19 @@ public class RestAppUserController {
 
     @GetMapping(path = {"/pag"})
     public AppUserPag listarPag(@RequestParam(required = false, value = "page") int page,
-    		                    @RequestParam(required = false, value = "perpage") int perPage) {
+    		                    @RequestParam(required = false, value = "perpage") int perPage, 
+    		                    HttpServletRequest peticion) {
     		//@QueryParam("page") int page, @QueryParam("perPage") int perPage){
+		String token = peticion.getHeader("Authorization");
+		System.out.print("\n\n + RestAppUserController token: " + token + "\n ");
+		if (token != null) {
+			String user = Jwts.parser()
+					.setSigningKey("0neProj3ct")
+					.parseClaimsJws(token.replace("Bearer",  ""))
+					.getBody()
+					.getSubject();
+			System.out.print("\n\n + RestAppUserController Usuario: " + user + "\n ");
+		}
 		boolean enabled = true;
 		AppUser usuarioCero = new AppUser();
 		Long todos = (long) 0;
