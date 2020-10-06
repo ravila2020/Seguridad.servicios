@@ -12,6 +12,5 @@ public interface IMRoleRepo extends JpaRepository<Role, Integer>{
 	@Transactional	
 	   void deleteById(Integer Id);
 	
-	@Transactional
-	Optional<String> findDistinctByName();
+
 }
