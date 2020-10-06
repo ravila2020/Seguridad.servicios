@@ -26,7 +26,7 @@ import com.mtto.sat.result.GenericResponse;
 
 import Respuesta.RolPag;
 
-@CrossOrigin(origins = "http://localhost:4200",maxAge = 3600)
+//@CrossOrigin(origins = "http://localhost:4200",maxAge = 3600)
 @RestController
 @RequestMapping("/Rol")
 public class RestRolController {

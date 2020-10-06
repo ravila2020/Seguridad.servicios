@@ -76,6 +76,13 @@ public class RestAppUserController {
         return repAppUser.findByUsername(id);
     }
 
+ /*   @GetMapping(path = {"/unic"})
+    public Optional<Integer> listarDistinctId(@PathVariable("id") String id){
+    	System.out.print(" + RestAppUserController listarId id: " + id + "\n ");
+        return repAppUser.findDistinctByName();
+    }
+*/
+    
     @GetMapping(path = {"/pag"})
     public AppUserPag listarPag(@RequestParam(required = false, value = "page") int page,
     		                    @RequestParam(required = false, value = "perpage") int perPage, 
