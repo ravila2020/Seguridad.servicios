@@ -34,7 +34,7 @@ import com.mtto.sat.result.GenericResponse;
 import Respuesta.AppUserPag;
 import io.jsonwebtoken.Jwts;
 
-@CrossOrigin(origins = "http://localhost:4200",maxAge = 3600)
+//@CrossOrigin(origins = "http://localhost:4200",maxAge = 3600)
 @RestController
 @RequestMapping("/Users")
 public class RestAppUserController {
@@ -189,7 +189,8 @@ public class RestAppUserController {
     }
 
 	@PostMapping
-	public  Optional<AppUser>  creaUsuario(@RequestBody AppUser NuevoUsuario){
+	public  AnsUserPagOpc  creaUsuario(@RequestBody AppUser NuevoUsuario){
+		AnsUserPagOpc respuesta = new AnsUserPagOpc();
 		registrar.registra("creaUsuario", "AppUser", "/Users", NuevoUsuario);
     	try {
 			String idAppUser = NuevoUsuario.getUsername();
@@ -197,43 +198,53 @@ public class RestAppUserController {
 	    	NuevoUsuario.setPassword(CryptoPass);
 			AppUser usuarioProc = repAppUser.save(NuevoUsuario);
 			System.out.print(" + RestAppUserController insertar id: " + usuarioProc.getId() + " " + usuarioProc.getUsername() + "\n ");
-	        return repAppUser.findByUsername(usuarioProc.getUsername());
+			respuesta.setCr("00");
+			respuesta.setDescripcion("Correcto");
+			respuesta.setContenido(repAppUser.findByUsername(usuarioProc.getUsername()));
+	        return respuesta;
 	    	} catch (Exception ex) {
 	    		throw new ApiRequestException("Upsi");
 	    	}
 		}
 
 	@PutMapping(path = {"/{id}"})
-	public Optional<AppUser> cambiaPassword(@PathVariable("id") String id, @RequestBody AppUser NuevoUsuario){
+	public AnsUserPagOpc cambiaPassword(@PathVariable("id") String id, @RequestBody AppUser NuevoUsuario){
+		AnsUserPagOpc respuesta = new AnsUserPagOpc();
 		String Password = NuevoUsuario.getPassword();
     	String CryptoPass = codificador.encode(NuevoUsuario.getPassword());
     	System.out.print(" + RestAppUserController listarId id: " + id + " Password:  " + Password + " " + CryptoPass + " \\n");
     	try {
 		ObjectMapper mapper = new ObjectMapper();
 		String jsonInString = mapper.writeValueAsString(NuevoUsuario);
-		System.out.print(" + Objeto: " + jsonInString);		
-    	Date date = new Date();
-    	LogTransacction log = new LogTransacction();
-    	log.setActionName("modificaPassword");
-    	log.setEntityName("AppUser");
-    	log.setOfficeId(0);
-    	log.setApiGetUrl("/Users/"+id);
-    	log.setResourceId(0);
-    	log.setSubresourceId(0);
-    	log.setCommandAsJson(jsonInString);
-    	log.setMakerId(0);
-    	log.setMadeOnDate(date);
-    	log.setCheckerId(0);
-    	log.setCheckedOnDate(date);
-    	log.setProcessingResultEnum(0);
-		repLog.save(log);    	
+		System.out.print(" + Objeto: " + jsonInString);	
+		
+		registrar.registra("modificaPassword", "AppUser", "/Users/"+id, NuevoUsuario);
+		
+		
+//    	Date date = new Date();
+//    	LogTransacction log = new LogTransacction();
+//    	log.setActionName("modificaPassword");
+//    	log.setEntityName("AppUser");
+//    	log.setOfficeId(0);
+//    	log.setApiGetUrl("/Users/"+id);
+//    	log.setResourceId(0);
+//    	log.setSubresourceId(0);
+//    	log.setCommandAsJson(jsonInString);
+//    	log.setMakerId(0);
+//    	log.setMadeOnDate(date);
+//    	log.setCheckerId(0);
+//    	log.setCheckedOnDate(date);
+//    	log.setProcessingResultEnum(0);
+//		repLog.save(log);    	
     	
 		Optional<AppUser> UsuarioExistente = repAppUser.findByUsername(id);
 		NuevoUsuario = UsuarioExistente.get();
     	NuevoUsuario.setPassword(CryptoPass);
 		repAppUser.save(NuevoUsuario);
-
-		return repAppUser.findByUsername(id);
+		respuesta.setContenido(repAppUser.findByUsername(id));
+		respuesta.setCr("00");
+		respuesta.setDescripcion("Correcto");	
+		return respuesta;
     	} catch (Exception ex) {
     		throw new ApiRequestException("Upsi");
     	}
