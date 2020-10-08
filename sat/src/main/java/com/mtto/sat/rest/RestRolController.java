@@ -51,6 +51,15 @@ public class RestRolController {
 		return respuesta;
 	}
 
+//	@GetMapping
+//	public List<Role>  listar(){
+//
+//	    System.out.print(" + RestRolController listar version lista\n");
+//		return repRole.findAll();
+//	}
+//
+
+	
 	@GetMapping(path = {"/{id}"})
 	public Optional<Role> buscar(@PathVariable("id") String id){
 	    System.out.print(" + RestRolController buscar id: " + id + " \n");

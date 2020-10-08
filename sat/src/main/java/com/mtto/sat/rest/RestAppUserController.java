@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,12 +26,15 @@ import com.mtto.sat.modelo.AppUser;
 import com.mtto.sat.modelo.LogTransacction;
 import com.mtto.sat.repositorio.IMAppUserRepo;
 import com.mtto.sat.repositorio.IMLogTransacctionRepo;
+import com.mtto.sat.result.AnsUserPag;
+import com.mtto.sat.result.AnsUserPagList;
+import com.mtto.sat.result.AnsUserPagOpc;
 import com.mtto.sat.result.GenericResponse;
 
 import Respuesta.AppUserPag;
 import io.jsonwebtoken.Jwts;
 
-//@CrossOrigin(origins = "http://localhost:4200",maxAge = 3600)
+@CrossOrigin(origins = "http://localhost:4200",maxAge = 3600)
 @RestController
 @RequestMapping("/Users")
 public class RestAppUserController {
@@ -50,11 +54,30 @@ public class RestAppUserController {
 	@Autowired
 	private logRegistra registrar;
 	
-	
+//	@GetMapping
+//	public List<AppUser> listar(HttpServletRequest peticion){
+//		boolean enabled = true;
+//		
+//		String token = peticion.getHeader("Authorization");
+//		System.out.print("\n\n + RestAppUserController token: " + token + "\n ");
+//		if (token != null) {
+//			String user = Jwts.parser()
+//					.setSigningKey("0neProj3ct")
+//					.parseClaimsJws(token.replace("Bearer",  ""))
+//					.getBody()
+//					.getSubject();
+//			System.out.print("\n\n + RestAppUserController Usuario: " + user + "\n ");
+//		}
+//		
+//		
+//		return repAppUser.findByEnabled(enabled);
+//	}
+
 	@GetMapping
-	public List<AppUser> listar(HttpServletRequest peticion){
+	public AnsUserPag listar(HttpServletRequest peticion){
 		boolean enabled = true;
-		
+        AnsUserPag respuesta = new AnsUserPag();
+        
 		String token = peticion.getHeader("Authorization");
 		System.out.print("\n\n + RestAppUserController token: " + token + "\n ");
 		if (token != null) {
@@ -64,16 +87,25 @@ public class RestAppUserController {
 					.getBody()
 					.getSubject();
 			System.out.print("\n\n + RestAppUserController Usuario: " + user + "\n ");
-		}
-		
-		
-		return repAppUser.findByEnabled(enabled);
+			respuesta.setCr("00");
+			respuesta.setDescripcion("Correcto");	
+			respuesta.setContenido(repAppUser.findByEnabled(enabled));			
+		}else
+		{
+			respuesta.setCr("99");
+			respuesta.setDescripcion("Petición sin token");		
+			}
+		return respuesta;
 	}
 
     @GetMapping(path = {"/{id}"})
-    public Optional<AppUser> listarId(@PathVariable("id") String id){
+    public AnsUserPagOpc listarId(@PathVariable("id") String id){
+        AnsUserPagOpc respuesta = new AnsUserPagOpc();
     	System.out.print(" + RestAppUserController listarId id: " + id + "\n ");
-        return repAppUser.findByUsername(id);
+    	respuesta.setCr("00");
+    	respuesta.setDescripcion("Correcto");
+    	respuesta.setContenido(repAppUser.findByUsername(id));
+        return respuesta;
     }
 
  /*   @GetMapping(path = {"/unic"})
@@ -84,11 +116,12 @@ public class RestAppUserController {
 */
     
     @GetMapping(path = {"/pag"})
-    public AppUserPag listarPag(@RequestParam(required = false, value = "page") int page,
+    public AnsUserPagList listarPag(@RequestParam(required = false, value = "page") int page,
     		                    @RequestParam(required = false, value = "perpage") int perPage, 
     		                    HttpServletRequest peticion) {
-    		//@QueryParam("page") int page, @QueryParam("perPage") int perPage){
-		String token = peticion.getHeader("Authorization");
+    	
+    	AnsUserPagList respuesta = new AnsUserPagList();
+    	String token = peticion.getHeader("Authorization");
 		System.out.print("\n\n + RestAppUserController token: " + token + "\n ");
 		if (token != null) {
 			String user = Jwts.parser()
@@ -97,7 +130,11 @@ public class RestAppUserController {
 					.getBody()
 					.getSubject();
 			System.out.print("\n\n + RestAppUserController Usuario: " + user + "\n ");
-		}
+		}	else	{
+			respuesta.setCr("99");
+			respuesta.setDescripcion("Petición sin token");		
+			return respuesta;
+			}
 		boolean enabled = true;
 		AppUser usuarioCero = new AppUser();
 		Long todos = (long) 0;
@@ -144,7 +181,11 @@ public class RestAppUserController {
          resultado.setTotal((int) repAppUser.countByEnabled(true));
          resultado.setTotalPages(pagEntero);
          resultado.setUsers(paginaUsuarios);
-         return resultado;
+
+	 	 respuesta.setContenido(resultado);
+		 respuesta.setCr("00");
+		 respuesta.setDescripcion("Correcto");
+         return respuesta;
     }
 
 	@PostMapping

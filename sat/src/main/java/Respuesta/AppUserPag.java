@@ -11,6 +11,16 @@ public class AppUserPag {
 	int total;
 	int totalPages;
 	private List<AppUser> users;
+	
+	
+	
+	public AppUserPag() {
+		this.page = page;
+		this.perPage = perPage;
+		this.total = total;
+		this.totalPages = totalPages;
+		this.users = users;
+	}
 	public int getPage() {
 		return page;
 	}
