@@ -34,7 +34,7 @@ import com.mtto.sat.result.GenericResponse;
 import Respuesta.AppUserPag;
 import io.jsonwebtoken.Jwts;
 
-//@CrossOrigin(origins = "http://localhost:4200",maxAge = 3600)
+@CrossOrigin(origins = "http://localhost:4200",maxAge = 3600)
 @RestController
 @RequestMapping("/Users")
 public class RestAppUserController {
@@ -251,7 +251,8 @@ public class RestAppUserController {
 	}
 
 	@PutMapping
-	public Optional<AppUser> modificar(@RequestBody AppUser NuevoUsuario){
+	public AnsUserPagOpc modificar(@RequestBody AppUser NuevoUsuario){
+		AnsUserPagOpc respuesta = new AnsUserPagOpc();
 		String idAppUser = NuevoUsuario.getUsername();
  //   	String CryptoPass = codificador.encode(NuevoUsuario.getPassword());
  //   	NuevoUsuario.setPassword(CryptoPass);
@@ -259,33 +260,40 @@ public class RestAppUserController {
 		ObjectMapper mapper = new ObjectMapper();
 		String jsonInString = mapper.writeValueAsString(NuevoUsuario);
 		System.out.print(" + Objeto: " + jsonInString);		
-    	Date date = new Date();
-    	LogTransacction log = new LogTransacction();
-    	log.setActionName("modificaUsuario");
-    	log.setEntityName("AppUser");
-    	log.setOfficeId(0);
-    	log.setApiGetUrl("/Users");
-    	log.setResourceId(0);
-    	log.setSubresourceId(0);
-    	log.setCommandAsJson(jsonInString);
-    	log.setMakerId(0);
-    	log.setMadeOnDate(date);
-    	log.setCheckerId(0);
-    	log.setCheckedOnDate(date);
-    	log.setProcessingResultEnum(0);
-		repLog.save(log);    	
+		registrar.registra("modificaUsuario", "AppUser", "/Users/", NuevoUsuario);
+		
+//    	Date date = new Date();
+//    	LogTransacction log = new LogTransacction();
+//    	log.setActionName("modificaUsuario");
+//    	log.setEntityName("AppUser");
+//    	log.setOfficeId(0);
+//    	log.setApiGetUrl("/Users");
+//    	log.setResourceId(0);
+//    	log.setSubresourceId(0);
+//    	log.setCommandAsJson(jsonInString);
+//    	log.setMakerId(0);
+//    	log.setMadeOnDate(date);
+//    	log.setCheckerId(0);
+//    	log.setCheckedOnDate(date);
+//    	log.setProcessingResultEnum(0);
+//		repLog.save(log);    	
 
 		repAppUser.save(NuevoUsuario);
-		return repAppUser.findByUsername(idAppUser);
+		
+		respuesta.setContenido(repAppUser.findByUsername(idAppUser));
+		respuesta.setCr("00");
+		respuesta.setDescripcion("Correcto");	
+		return respuesta;
+
     	} catch (Exception ex) {
     		throw new ApiRequestException("Upsi");
     	}
 	}
 	
     @DeleteMapping(path = {"/{id}"})
-    public GenericResponse EliminarId(@PathVariable("id") String id){
+    public AnsUserPagOpc EliminarId(@PathVariable("id") String id){
     	System.out.print(" + RestAppUserController EliminarId id: " + id + " ");
-    	GenericResponse Resultado = new GenericResponse();
+    	AnsUserPagOpc Resultado = new AnsUserPagOpc();
     	Optional<AppUser> Usuario = repAppUser.findByUsername(id);
     	AppUser UsuarioD = Usuario.get();
     	UsuarioD.setEnabled(false);
@@ -294,29 +302,31 @@ public class RestAppUserController {
     		ObjectMapper mapper = new ObjectMapper();
     		String jsonInString =id;
     		System.out.print(" + Objeto: " + jsonInString);		
-        	Date date = new Date();
-        	LogTransacction log = new LogTransacction();
-        	log.setActionName("eliminaUsuario");
-        	log.setEntityName("AppUser");
-        	log.setOfficeId(0);
-        	log.setApiGetUrl("/Users/"+id);
-        	log.setResourceId(0);
-        	log.setSubresourceId(0);
-        	log.setCommandAsJson(jsonInString);
-        	log.setMakerId(0);
-        	log.setMadeOnDate(date);
-        	log.setCheckerId(0);
-        	log.setCheckedOnDate(date);
-        	log.setProcessingResultEnum(0);
-    		repLog.save(log);  
+    		registrar.registra("eliminaUsuario", "AppUser", "/Users/"+id, UsuarioD);
+    		
+//        	Date date = new Date();
+//        	LogTransacction log = new LogTransacction();
+//        	log.setActionName("eliminaUsuario");
+//        	log.setEntityName("AppUser");
+//        	log.setOfficeId(0);
+//        	log.setApiGetUrl("/Users/"+id);
+//        	log.setResourceId(0);
+//        	log.setSubresourceId(0);
+//        	log.setCommandAsJson(jsonInString);
+//        	log.setMakerId(0);
+//        	log.setMadeOnDate(date);
+//        	log.setCheckerId(0);
+//        	log.setCheckedOnDate(date);
+//        	log.setProcessingResultEnum(0);
+//    		repLog.save(log);  
     		
     		repAppUser.save(UsuarioD);
-    		Resultado.setMensaje("Registro Eliminado");
-    		Resultado.setFechaHora(null);
+    		Resultado.setContenido(Usuario);
+    		Resultado.setCr("00");
+    		Resultado.setDescripcion("Correcto");
     		return Resultado; }
     	catch (Exception e) {
-    		Resultado.setMensaje("Registro con incidencia");
-    		Resultado.setFechaHora(null);
+    		Resultado.setDescripcion("Registro con incidencia");
     		return Resultado;}
     }	
 }
