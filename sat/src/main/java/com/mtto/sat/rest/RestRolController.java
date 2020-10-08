@@ -22,11 +22,12 @@ import com.mtto.sat.modelo.RoleId;
 import com.mtto.sat.repositorio.IMAppUserRoleRepo;
 import com.mtto.sat.repositorio.IMRolePermissionRepo;
 import com.mtto.sat.repositorio.IMRoleRepo;
+import com.mtto.sat.result.AnsRol;
 import com.mtto.sat.result.GenericResponse;
 
 import Respuesta.RolPag;
 
-//@CrossOrigin(origins = "http://localhost:4200",maxAge = 3600)
+@CrossOrigin(origins = "http://localhost:4200",maxAge = 3600)
 @RestController
 @RequestMapping("/Rol")
 public class RestRolController {
@@ -41,10 +42,13 @@ public class RestRolController {
 	private IMAppUserRoleRepo userRolPermRel;
 	
 	@GetMapping
-	public List<Role> listar(){
+	public AnsRol listar(){
+		AnsRol respuesta = new AnsRol();
 	    System.out.print(" + RestRolController listar \n");
-
-		return repRole.findAll();
+	    respuesta.setCr("00");
+	    respuesta.setDescripcion("Correcto");
+	    respuesta.setRoles(repRole.findAll());
+		return respuesta;
 	}
 
 	@GetMapping(path = {"/{id}"})
