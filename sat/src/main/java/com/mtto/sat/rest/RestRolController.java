@@ -2,7 +2,6 @@ package com.mtto.sat.rest;
 
 import java.time.ZonedDateTime;
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -23,6 +22,8 @@ import com.mtto.sat.repositorio.IMAppUserRoleRepo;
 import com.mtto.sat.repositorio.IMRolePermissionRepo;
 import com.mtto.sat.repositorio.IMRoleRepo;
 import com.mtto.sat.result.AnsRol;
+import com.mtto.sat.result.AnsRolOpc;
+import com.mtto.sat.result.AnsRolPag;
 import com.mtto.sat.result.GenericResponse;
 
 import Respuesta.RolPag;
@@ -61,20 +62,26 @@ public class RestRolController {
 
 	
 	@GetMapping(path = {"/{id}"})
-	public Optional<Role> buscar(@PathVariable("id") String id){
+	public AnsRolOpc buscar(@PathVariable("id") String id){
+		AnsRolOpc respuesta = new AnsRolOpc();
 	    System.out.print(" + RestRolController buscar id: " + id + " \n");
 
 	    RoleId Clave = new RoleId();
 	    Integer idRol = Integer.valueOf(id);
 		Clave.setId(idRol);
+		
+	    respuesta.setCr("00");
+	    respuesta.setDescripcion("Correcto");
+	    respuesta.setRoles(repRole.findById(idRol));
+		return respuesta;
 
-		return repRole.findById(idRol);
 	}
 
     @GetMapping(path = {"/pag"})
-    public RolPag listarPag(@RequestParam(required = false, value = "page") int page,
+    public AnsRolPag listarPag(@RequestParam(required = false, value = "page") int page,
     		                    @RequestParam(required = false, value = "perpage") int perPage) {
     		//@QueryParam("page") int page, @QueryParam("perPage") int perPage){
+    	AnsRolPag respuesta = new AnsRolPag();
 		boolean enabled = true;
 		Role rolCero = new Role();
 		Long todos = (long) 0;
@@ -120,29 +127,39 @@ public class RestRolController {
          resultado.setTotal((int) repRole.count());
          resultado.setTotalPages(pagEntero);
          resultado.setRoles(paginaRoles);
-         return resultado;
+         
+ 	    respuesta.setCr("00");
+ 	    respuesta.setDescripcion("Correcto");
+ 	    respuesta.setContenido(resultado);
+ 		return respuesta;
     }
 
 	@PostMapping
-	public Optional<Role> insertar(@RequestBody Role NuevoRol){
+	public AnsRolOpc insertar(@RequestBody Role NuevoRol){
+		AnsRolOpc respuesta = new AnsRolOpc();
 		Role RolEnProceso = repRole.save(NuevoRol);
 	    System.out.print(" + RestRolController insertar id: " + RolEnProceso.getId() + " \n");
 		
 		RoleId Clave = new RoleId();
 
 		Clave.setId(RolEnProceso.getId());
- 
-		return repRole.findById(RolEnProceso.getId());
+	    respuesta.setCr("00");
+	    respuesta.setDescripcion("Correcto");
+	    respuesta.setRoles(repRole.findById(RolEnProceso.getId()));
+		return respuesta;
 	}
 
 	@PutMapping
-	public Optional<Role> modificar(@RequestBody Role ModifRol){
+	public AnsRolOpc modificar(@RequestBody Role ModifRol){
+		AnsRolOpc respuesta = new AnsRolOpc();
 		repRole.save(ModifRol);
 		RoleId Clave = new RoleId();
 
 		Clave.setId(ModifRol.getId());
-
-		return repRole.findById(ModifRol.getId());
+	    respuesta.setCr("00");
+	    respuesta.setDescripcion("Correcto");
+	    respuesta.setRoles(repRole.findById(ModifRol.getId()));
+		return respuesta;
 	}
 
 	@DeleteMapping(path = {"/{id}"})
