@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.mtto.sat.modelo.RolePermission;
 import com.mtto.sat.repositorio.IMRolePermissionRepo;
+import com.mtto.sat.result.AnsRPList;
 
 @CrossOrigin(origins = "http://localhost:4200",maxAge = 3600)
 @RestController
@@ -25,34 +26,59 @@ public class RestRPController {
 	private IMRolePermissionRepo rolPermRel;
 
 	@GetMapping
-	public List<RolePermission> listar(){
+	public AnsRPList listar(){
+		AnsRPList Respuesta = new AnsRPList();
 	    System.out.print(" + RestRPController listar \n");
+	    Respuesta.setCr("00");
+	    Respuesta.setDescripcion("Correcto");
+	    Respuesta.setContenido(rolPermRel.findAll());
 
-		return rolPermRel.findAll();
+        return Respuesta;
 	}
 
 	@GetMapping(path = {"/{id}"})
-	public List<RolePermission> buscar(@PathVariable("id") String id){
+	public AnsRPList buscar(@PathVariable("id") String id){
+		AnsRPList Respuesta = new AnsRPList();
 	    System.out.print(" + RestRPController buscar " + id + " \n");
+	    Respuesta.setCr("00");
+	    Respuesta.setDescripcion("Correcto");
+	    Respuesta.setContenido(rolPermRel.findAllByRoleId(Integer.valueOf(id)));
 
-		return rolPermRel.findAllByRoleId(Integer.valueOf(id));
+        return Respuesta;
 	}
 
 	@PostMapping
-	public void insertar(@RequestBody RolePermission NuevoRolPermiso){
+	public AnsRPList insertar(@RequestBody RolePermission NuevoRolPermiso){
+		AnsRPList Respuesta = new AnsRPList();
 		RolePermission RolPermisoEnProceso = rolPermRel.save(NuevoRolPermiso);
+		
+	    Respuesta.setCr("00");
+	    Respuesta.setDescripcion("Correcto");
+	    Respuesta.setContenido(rolPermRel.findAllByRoleId(NuevoRolPermiso.getRoleId()));	
+        return Respuesta;
 	}
 
 	@PutMapping
-	public void agrupar(@RequestBody List<RolePermission> NuevoRolPermiso){
+	public AnsRPList agrupar(@RequestBody List<RolePermission> NuevoRolPermiso){
+		AnsRPList Respuesta = new AnsRPList();
 		Iterable <RolePermission> RolPermisoEnProceso = rolPermRel.saveAll(NuevoRolPermiso);
+
+	    Respuesta.setCr("00");
+	    Respuesta.setDescripcion("Correcto");
+	    Respuesta.setContenido(NuevoRolPermiso);	
+        return Respuesta;
 	}
 
 	
 	@DeleteMapping(path = {"/{id}"})
-	public void Eliminar(@PathVariable("id") String id){
+	public AnsRPList Eliminar(@PathVariable("id") String id){
+		AnsRPList Respuesta = new AnsRPList();
 	    System.out.print(" + RessAURolController Eliminar id: " + id + " \n");
 
 		rolPermRel.deleteByRoleId(Integer.valueOf(id));
+	    Respuesta.setCr("00");
+	    Respuesta.setDescripcion("Correcto");
+
+        return Respuesta;
 	}
 }
