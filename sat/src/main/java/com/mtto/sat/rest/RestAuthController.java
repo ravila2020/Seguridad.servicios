@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.mtto.sat.modelo.AppUser;
 import com.mtto.sat.modelo.AppUserRole;
 import com.mtto.sat.modelo.AppUserRoleId;
-import com.mtto.sat.modelo.PermissionId;
 import com.mtto.sat.modelo.Role;
 import com.mtto.sat.modelo.RolePermission;
 import com.mtto.sat.modelo.RolePermissionId;
@@ -82,7 +81,7 @@ public class RestAuthController {
 //    	RoleId RolClave = new RoleId();
     	
     	RolePermissionId RolPermClave = new RolePermissionId();
-    	PermissionId PermClave = new PermissionId();
+//    	PermissionId PermClave = new PermissionId();
     	List<RolePermission> ListRolPerm;
     	
 	    // -------------------  carga de objetos

@@ -9,7 +9,6 @@ import javax.persistence.IdClass;
 import javax.persistence.Table;
 
 @Entity
-//@IdClass(PermissionId.class)
 @Table(name = "m_permission")
 public class Permission {
 
@@ -18,7 +17,7 @@ public class Permission {
 	@Column(name = "id")
 	private Integer id; 
 	
-	@Column(name = "grouping", nullable = false, length = 50)	
+	@Column(name = "`grouping`", nullable = false, length = 50)	
 	private String grouping; 
 	
 	@Column(name = "code", nullable = false, length = 100)	
@@ -42,9 +41,9 @@ public class Permission {
 		this.canMakerChecker = canMakerChecker;
 	}
 	
-	
-	public Permission(String grouping, String code, String entityName, String action_name, boolean canMakerChecker) {
-		super();
+	public Permission(Integer id, String grouping, String code, String entityName, String action_name,
+			boolean canMakerChecker) {
+		this.id = id;
 		this.grouping = grouping;
 		this.code = code;
 		this.entityName = entityName;
@@ -98,6 +97,7 @@ public class Permission {
 
 	public void setCanMakerChecker(boolean canMakerChecker) {
 		this.canMakerChecker = canMakerChecker;
-	} 
+	}
+
 
 }
