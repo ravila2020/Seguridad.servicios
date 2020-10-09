@@ -1,6 +1,5 @@
 package com.mtto.sat.rest;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,13 +22,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mtto.sat.exception.ApiRequestException;
 import com.mtto.sat.log.logRegistra;
 import com.mtto.sat.modelo.AppUser;
-import com.mtto.sat.modelo.LogTransacction;
 import com.mtto.sat.repositorio.IMAppUserRepo;
 import com.mtto.sat.repositorio.IMLogTransacctionRepo;
 import com.mtto.sat.result.AnsUserPag;
 import com.mtto.sat.result.AnsUserPagList;
 import com.mtto.sat.result.AnsUserPagOpc;
-import com.mtto.sat.result.GenericResponse;
 
 import Respuesta.AppUserPag;
 import io.jsonwebtoken.Jwts;
@@ -108,6 +105,21 @@ public class RestAppUserController {
         return respuesta;
     }
 
+    
+    
+    @GetMapping(path = {"like/{id}"})
+    public AnsUserPag listarLike(@PathVariable("id") String id){
+    	String like = "%" + id + "%";
+    	AnsUserPag respuesta = new AnsUserPag();
+    	System.out.print(" + RestAppUserController listarId id: " + like + "\n ");
+    	respuesta.setCr("00");
+    	respuesta.setDescripcion("Correcto");
+    	respuesta.setContenido(repAppUser.findByFirstname(like));
+        return respuesta;
+    }
+    
+    
+    
  /*   @GetMapping(path = {"/unic"})
     public Optional<Integer> listarDistinctId(@PathVariable("id") String id){
     	System.out.print(" + RestAppUserController listarId id: " + id + "\n ");
@@ -188,6 +200,79 @@ public class RestAppUserController {
          return respuesta;
     }
 
+    @GetMapping(path = {"/paglike"})
+    public AnsUserPagList listarPagLike(@RequestParam(required = false, value = "page") int page,
+    		                    @RequestParam(required = false, value = "perpage") int perPage, 
+    		                    @RequestParam(required = false, value = "id") String id, 
+    		                    HttpServletRequest peticion) {
+    	String like = "%" + id + "%";
+    	AnsUserPagList respuesta = new AnsUserPagList();
+    	String token = peticion.getHeader("Authorization");
+		System.out.print("\n\n + RestAppUserController token: " + token + "\n ");
+		if (token != null) {
+			String user = Jwts.parser()
+					.setSigningKey("0neProj3ct")
+					.parseClaimsJws(token.replace("Bearer",  ""))
+					.getBody()
+					.getSubject();
+			System.out.print("\n\n + RestAppUserController Usuario: " + user + "\n ");
+		}	else	{
+			respuesta.setCr("99");
+			respuesta.setDescripcion("Petición sin token");		
+			return respuesta;
+			}
+		boolean enabled = true;
+		AppUser usuarioCero = new AppUser();
+		Long todos = (long) 0;
+		double paginas = (float) 0.0;
+		Integer pagEntero = 0;
+		List<AppUser> todosUsuarios;
+		List<AppUser> paginaUsuarios; 
+		Integer usuarioInicial, usuarioFinal;
+		
+    	AppUserPag resultado = new AppUserPag();
+    	
+    	System.out.print(" + RestAppUserController listarPag page: " + page + " perpage: " + perPage +"\n ");
+    	// obtener el total.
+         todos = repAppUser.countByFirstname(like);
+         paginas = (double) todos / perPage;
+         pagEntero = (int) paginas;
+         if ((paginas-pagEntero)>0)
+         {
+        	 pagEntero++;
+         }
+         // Obtener la lista solicitada
+         usuarioInicial = (perPage  * (page - 1) );
+         usuarioFinal   = (usuarioInicial + perPage) - 1;
+         todosUsuarios  = repAppUser.findByFirstname(like);
+         paginaUsuarios = repAppUser.findByFirstname(like);
+         paginaUsuarios.clear();
+         for (int i=0; i<todos;i++) {
+        	 System.out.print("\n " + "          + RestAppUserController Usuario: " + i + " - " + todosUsuarios.get(i).getUsername() );
+        	 if(i>=usuarioInicial && i<=usuarioFinal)
+        	 {
+        		 usuarioCero = todosUsuarios.get(i);
+        		 paginaUsuarios.add(usuarioCero);
+        		 System.out.print("  -- En lista  --" + usuarioCero.getUsername() );
+        	 }
+         }
+         
+         
+     	System.out.print("\n + RestAppUserController listarPag todos: " + todos + " paginas: " + paginas + "  " + (paginas-pagEntero ) +"\n ");
+         //
+         resultado.setPage(page);
+         resultado.setPerPage(perPage);
+         resultado.setTotal((int) repAppUser.countByFirstname(like));
+         resultado.setTotalPages(pagEntero);
+         resultado.setUsers(paginaUsuarios);
+
+	 	 respuesta.setContenido(resultado);
+		 respuesta.setCr("00");
+		 respuesta.setDescripcion("Correcto");
+         return respuesta;
+    }
+
+    
 	@PostMapping
 	public  AnsUserPagOpc  creaUsuario(@RequestBody AppUser NuevoUsuario){
 		AnsUserPagOpc respuesta = new AnsUserPagOpc();
