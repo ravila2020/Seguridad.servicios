@@ -1,7 +1,6 @@
 package com.mtto.sat.rest;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -16,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.mtto.sat.modelo.AppUserRole;
 import com.mtto.sat.modelo.AppUserRoleId;
 import com.mtto.sat.repositorio.IMAppUserRoleRepo;
+import com.mtto.sat.result.AnsUserRolList;
 
 @CrossOrigin(origins = "http://localhost:4200",maxAge = 3600)
 @RestController
@@ -26,17 +26,24 @@ public class RessAURolController {
 	private IMAppUserRoleRepo userRolPermRel;
 
 	@GetMapping
-	public List<AppUserRole> listar(){
+	public AnsUserRolList listar(){
+		AnsUserRolList Respuesta = new AnsUserRolList();
 	    System.out.print(" + RessAURolController listar \n");
-
-		return userRolPermRel.findAll();
+	    Respuesta.setCr("00");
+	    Respuesta.setDescripcion("Correcto");
+	    Respuesta.setContenido(userRolPermRel.findAll());
+		return Respuesta;
 	}
 
 	@GetMapping(path = {"/{id}"})
-	public List<AppUserRole> buscar(@PathVariable("id") String id){
-	    System.out.print(" + RessAURolController buscar " + id + " \n");
+	public AnsUserRolList buscar(@PathVariable("id") String id){
+		AnsUserRolList Respuesta = new AnsUserRolList();
 
-		return userRolPermRel.findAllByAppUserId(Integer.valueOf(id));
+	    System.out.print(" + RessAURolController buscar " + id + " \n");
+	    Respuesta.setCr("00");
+	    Respuesta.setDescripcion("Correcto");
+	    Respuesta.setContenido(userRolPermRel.findAllByAppUserId(Integer.valueOf(id)));
+		return Respuesta;
 	}	
 	
 	/*
@@ -54,15 +61,23 @@ public class RessAURolController {
 	 */
 	
 	@PostMapping
-	public void insertar(@RequestBody AppUserRole NuevoUserRol){
+	public AnsUserRolList insertar(@RequestBody AppUserRole NuevoUserRol){
+		AnsUserRolList Respuesta = new AnsUserRolList();
 		AppUserRole UserRolEnProceso = userRolPermRel.save(NuevoUserRol);
 	
 	    AppUserRoleId Clave = new AppUserRoleId();
+	    
+	    Respuesta.setCr("00");
+	    Respuesta.setDescripcion("Correcto");
+	    Respuesta.setContenido(userRolPermRel.findAllByAppUserId(Integer.valueOf(NuevoUserRol.getAppUserId())));
+		return Respuesta;
+	
 	}
 	
 	
 	@DeleteMapping(path = {"/{id}"})
-	public void Eliminar(@PathVariable("id") String id){
+	public AnsUserRolList Eliminar(@PathVariable("id") String id){
+		AnsUserRolList Respuesta = new AnsUserRolList();
 	    System.out.print(" + RessAURolController Eliminar id: " + id + " \n");
 
 	    AppUserRoleId Clave = new AppUserRoleId();
@@ -70,5 +85,8 @@ public class RessAURolController {
 		Clave.setAppUserId(idRol);
 
 		userRolPermRel.deleteByAppUserId(idRol);
+	    Respuesta.setCr("00");
+	    Respuesta.setDescripcion("Correcto");
+	    return Respuesta;
 	}
 }
