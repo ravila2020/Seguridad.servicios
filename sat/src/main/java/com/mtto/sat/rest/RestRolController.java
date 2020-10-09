@@ -134,6 +134,70 @@ public class RestRolController {
  		return respuesta;
     }
 
+    @GetMapping(path = {"/paglike"})
+    public AnsRolPag listarPagLike(@RequestParam(required = false, value = "page") int page,
+    		                    @RequestParam(required = false, value = "perpage") int perPage,
+    		                    @RequestParam(required = false, value = "id") String id ) {
+    		//@QueryParam("page") int page, @QueryParam("perPage") int perPage){
+    	
+    	String like = "%" + id + "%";
+    	AnsRolPag respuesta = new AnsRolPag();
+		boolean enabled = true;
+		Role rolCero = new Role();
+		Long todos = (long) 0;
+		double paginas = (float) 0.0;
+		Integer pagEntero = 0;
+		List<Role> todosRoles;
+		List<Role> paginaRoles; 
+		Integer rolInicial, rolFinal;
+		
+		RolPag resultado = new RolPag();
+    	
+    	System.out.print(" + RestRolController listarPag page: " + page + " perpage: " + perPage +"\n ");
+
+    	// obtener el total.
+ //      todos = repRole.count();
+    	 todos = repRole.countByCuenta(like);
+         paginas = (double) todos / perPage;
+         pagEntero = (int) paginas;
+         if ((paginas-pagEntero)>0)
+         {
+        	 pagEntero++;
+         }
+         // Obtener la lista solicitada
+         rolInicial = (perPage  * (page - 1) );
+         rolFinal   = (rolInicial + perPage) - 1;
+//         todosRoles  = repRole.findAll();
+//         paginaRoles = repRole.findAll();
+         todosRoles  = repRole.findByDescription(like);
+         paginaRoles = repRole.findByDescription(like);
+         paginaRoles.clear();
+         for (int i=0; i<todos;i++) {
+        	 System.out.print("\n " + "          + RestRolController Rol: " + i + " - " + todosRoles.get(i).getDescription());
+        	 if(i>=rolInicial && i<=rolFinal)
+        	 {
+        		 rolCero = todosRoles.get(i);
+        		 paginaRoles.add(rolCero);
+        		 System.out.print("  -- En lista  --" + rolCero.getDescription());
+        	 }
+         }
+         
+         
+     	System.out.print("\n + RestRolController listarPag todos: " + todos + " paginas: " + paginas + "  " + (paginas-pagEntero ) +"\n ");
+         //
+         resultado.setPage(page);
+         resultado.setPerPage(perPage);
+         resultado.setTotal(todos.intValue());
+         resultado.setTotalPages(pagEntero);
+         resultado.setRoles(paginaRoles);
+         
+ 	    respuesta.setCr("00");
+ 	    respuesta.setDescripcion("Correcto");
+ 	    respuesta.setContenido(resultado);
+ 		return respuesta;
+    }
+    
+    
 	@PostMapping
 	public AnsRolOpc insertar(@RequestBody Role NuevoRol){
 		AnsRolOpc respuesta = new AnsRolOpc();
