@@ -1,5 +1,6 @@
 package com.mtto.sat.rest;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,11 +19,13 @@ import com.mtto.sat.modelo.AppUserRoleId;
 import com.mtto.sat.modelo.Role;
 import com.mtto.sat.modelo.RolePermission;
 import com.mtto.sat.modelo.RolePermissionId;
+import com.mtto.sat.modelo.VigenciaToken;
 import com.mtto.sat.repositorio.IMAppUserRepo;
 import com.mtto.sat.repositorio.IMAppUserRoleRepo;
 import com.mtto.sat.repositorio.IMPermissionRepo;
 import com.mtto.sat.repositorio.IMRolePermissionRepo;
 import com.mtto.sat.repositorio.IMRoleRepo;
+import com.mtto.sat.repositorio.IMVigTokenRepo;
 
 import Respuesta.AnswAuth;
 import Respuesta.EntradaAuth;
@@ -52,6 +55,9 @@ public class RestAuthController {
 	@Autowired
 	private IMPermissionRepo repPerm;
 
+	@Autowired
+	private IMVigTokenRepo vigencia;
+		
 	@GetMapping
 	public List<AppUser> listar(){
 		return repAppUser.findAll();
@@ -72,6 +78,8 @@ public class RestAuthController {
     	AnswAuth Respuesta = new AnswAuth();
     	
     	AppUser Usuario = new AppUser();
+    	
+    	VigenciaToken vToken = new VigenciaToken();
     	
     	AppUserRoleId UsuarioRolClave = new AppUserRoleId();
     	AppUserRole UsuarioRol = new AppUserRole();
@@ -148,15 +156,23 @@ public class RestAuthController {
         		Respuesta.setDescription("Usuario bloqueado");
         	}
         	else {
+        		// Se da de alta la vigencia del token
+        		vToken.setFecha(ZonedDateTime.now());
+        		vigencia.save(vToken);
+        		System.out.print("Secuencia de vigencia: "+vToken.getId()); 
         		Respuesta.setDescription("Acceso autorizado");
         		String token = Jwts.builder()
         				.setSubject(autoriz)
+        				.setId(Integer.toString(vToken.getId()))
         				.signWith(SignatureAlgorithm.HS512,"0neProj3ct")
         				.compact();
         		Respuesta.setToken("Bearer" + token);
         		Usuario.setIsDeleted(0);
         		Usuario.setNonlocked(true);
         		repAppUser.save(Usuario);
+        		// Se da de alta la vigencia del token
+        		vToken.setToken(token);
+        		vigencia.save(vToken);
         	}
 
     	} else {

@@ -22,8 +22,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mtto.sat.exception.ApiRequestException;
 import com.mtto.sat.log.logRegistra;
 import com.mtto.sat.modelo.AppUser;
+import com.mtto.sat.modelo.VigenciaToken;
 import com.mtto.sat.repositorio.IMAppUserRepo;
 import com.mtto.sat.repositorio.IMLogTransacctionRepo;
+import com.mtto.sat.repositorio.IMVigTokenRepo;
 import com.mtto.sat.result.AnsUserPag;
 import com.mtto.sat.result.AnsUserPagList;
 import com.mtto.sat.result.AnsUserPagOpc;
@@ -50,7 +52,9 @@ public class RestAppUserController {
 
 	@Autowired
 	private logRegistra registrar;
-	
+
+	@Autowired
+	private IMVigTokenRepo vigencia;
 //	@GetMapping
 //	public List<AppUser> listar(HttpServletRequest peticion){
 //		boolean enabled = true;
@@ -86,7 +90,19 @@ public class RestAppUserController {
 					.parseClaimsJws(token.replace("Bearer",  ""))
 					.getBody()
 					.getSubject();
-			System.out.print("\n\n + RestAppUserController Usuario: " + user + "\n ");
+			String secuencia = Jwts.parser()
+					.setSigningKey("0neProj3ct")
+					.parseClaimsJws(token.replace("Bearer",  ""))
+					.getBody()
+					.getId();
+
+			System.out.print("\n +++++ RestAppUserController Usuario: " + user + " Elemento: " + secuencia + "\n Token : "+ token+ "\n ");
+		    Optional<VigenciaToken> Vtoken = vigencia.findById(Integer.valueOf(secuencia));
+			System.out.print("\n +++++ RestAppUserController Usuario: " + user + " Elemento: " + secuencia + "\n Token : "+ Vtoken.get().getToken()+ "\n ");
+			if(token.equals("Bearer" + Vtoken.get().getToken()))
+				{System.out.print("OK");}
+			else 
+				{System.out.print("NoOk");}
 			respuesta.setCr("00");
 			respuesta.setDescripcion("Correcto");	
 			respuesta.setContenido(repAppUser.findByEnabled(enabled));			
