@@ -269,7 +269,24 @@ public class RestAppUserController {
 					.parseClaimsJws(token.replace("Bearer",  ""))
 					.getBody()
 					.getSubject();
+			String secuencia = Jwts.parser()
+					.setSigningKey("0neProj3ct")
+					.parseClaimsJws(token.replace("Bearer",  ""))
+					.getBody()
+					.getId();
 			System.out.print("\n\n + RestAppUserController Usuario: " + user + "\n ");
+			
+			System.out.print("\n +++++ RestAppUserController Usuario: " + user + " Elemento: " + secuencia + "\n Token : "+ token+ "\n ");
+		    Optional<VigenciaToken> Vtoken = vigencia.findById(Integer.valueOf(secuencia));
+			System.out.print("\n +++++ RestAppUserController Usuario: " + user + " Elemento: " + secuencia + "\n Token : "+ Vtoken.get().getToken()+ "\n ");
+			if(token.equals("Bearer" + Vtoken.get().getToken()))
+				{System.out.print("OK");}
+			else 
+				{System.out.print("NoOk");
+				respuesta.setCr("95");
+				respuesta.setDescripcion("Token no valido");		
+				return respuesta;
+				}
 		}	else	{
 			respuesta.setCr("99");
 			respuesta.setDescripcion("Petición sin token");		
