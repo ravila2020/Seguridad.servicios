@@ -1,5 +1,7 @@
 package com.mtto.sat.rest;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -17,6 +19,8 @@ import com.mtto.sat.repositorio.IMPermissionRepo;
 import com.mtto.sat.result.AnsPermPag;
 import com.mtto.sat.result.AnsPermPagOpc;
 
+import io.jsonwebtoken.Jwts;
+
 @CrossOrigin(origins = "http://localhost:4200",maxAge = 3600)
 @RestController
 @RequestMapping("/Permisos")
@@ -24,10 +28,26 @@ public class RestPermissionControler {
 
 	@Autowired
 	private IMPermissionRepo repPermision;
-	
+
+	// Consulta de lista de permisos con validacion de token.
 	@GetMapping
-	public AnsPermPag listar(){
+	public AnsPermPag listar(HttpServletRequest peticion){
+    	String token = peticion.getHeader("Authorization");
+    	System.out.print("\n\n + RestPermissionControler: " + token + "\n ");	
 		AnsPermPag Respuesta = new AnsPermPag();
+		if (token != null) {
+			String user = Jwts.parser()
+					.setSigningKey("0neProj3ct")
+					.parseClaimsJws(token.replace("Bearer",  ""))
+					.getBody()
+					.getSubject();
+			System.out.print("\n\n + RestPermissionControler Usuario: " + user + "\n ");
+		}	else	{
+			Respuesta.setCr("99");
+			Respuesta.setDescripcion("Petición sin token");		
+			return Respuesta;
+			}
+    	
 	    System.out.print(" + RestPermisionController listar \n");
 	    Respuesta.setCr("00");
 	    Respuesta.setDescripcion("Correcto");
@@ -35,9 +55,26 @@ public class RestPermissionControler {
 		return Respuesta;
 	}
 
+	// Consulta de permiso con validacion de token.
 	@GetMapping(path = {"/{id}"})
-	public AnsPermPagOpc buscar(@PathVariable("id") String id){
+	public AnsPermPagOpc buscar(HttpServletRequest peticion,
+								@PathVariable("id") String id){
+    	String token = peticion.getHeader("Authorization");
+    	System.out.print("\n\n + RestPermissionControler: " + token + "\n ");
 		AnsPermPagOpc Respuesta = new AnsPermPagOpc();
+
+		if (token != null) {
+			String user = Jwts.parser()
+					.setSigningKey("0neProj3ct")
+					.parseClaimsJws(token.replace("Bearer",  ""))
+					.getBody()
+					.getSubject();
+			System.out.print("\n\n + RestPermissionControler Usuario: " + user + "\n ");
+		}	else	{
+			Respuesta.setCr("99");
+			Respuesta.setDescripcion("Petición sin token");		
+			return Respuesta;
+			}
 		
 		System.out.print(" + RestPermissionControler buscar id: " + id + " \n");
 
@@ -51,9 +88,27 @@ public class RestPermissionControler {
         return Respuesta;
 	}
 
+	// Alta de permiso con validacion de token.
 	@PostMapping
-	public AnsPermPagOpc insertar(@RequestBody Permission NuevoPermiso){
+	public AnsPermPagOpc insertar(HttpServletRequest peticion,
+								  @RequestBody Permission NuevoPermiso){
 		AnsPermPagOpc Respuesta = new AnsPermPagOpc();
+		
+    	String token = peticion.getHeader("Authorization");
+    	System.out.print("\n\n + RestPermissionControler: " + token + "\n ");	
+
+		if (token != null) {
+			String user = Jwts.parser()
+					.setSigningKey("0neProj3ct")
+					.parseClaimsJws(token.replace("Bearer",  ""))
+					.getBody()
+					.getSubject();
+			System.out.print("\n\n + RestPermissionControler Usuario: " + user + "\n ");
+		}	else	{
+			Respuesta.setCr("99");
+			Respuesta.setDescripcion("Petición sin token");		
+			return Respuesta;
+			}
 
 		System.out.print(" ++    RestPermissionControler buscar NuevoPermiso: " + NuevoPermiso.getAction_name() + " \n"
 																				+ NuevoPermiso.getCode() + " \n"
@@ -72,11 +127,29 @@ public class RestPermissionControler {
 
         return Respuesta;
 	}
-
+	
+	// Modificación de permiso con validacion de token.
 	@PutMapping
-	public AnsPermPagOpc  modificar(@RequestBody Permission ModifPermiso){
+	public AnsPermPagOpc  modificar(HttpServletRequest peticion,
+			 						@RequestBody Permission ModifPermiso){
 		AnsPermPagOpc Respuesta = new AnsPermPagOpc();
+    	String token = peticion.getHeader("Authorization");
+    	System.out.print("\n\n + RestPermissionControler: " + token + "\n ");	
 
+		if (token != null) {
+			String user = Jwts.parser()
+					.setSigningKey("0neProj3ct")
+					.parseClaimsJws(token.replace("Bearer",  ""))
+					.getBody()
+					.getSubject();
+			System.out.print("\n\n + RestPermissionControler Usuario: " + user + "\n ");
+		}	else	{
+			Respuesta.setCr("99");
+			Respuesta.setDescripcion("Petición sin token");		
+			return Respuesta;
+			}
+
+		
 		repPermision.save(ModifPermiso);
 //		PermissionId Clave = new PermissionId();
 
@@ -88,10 +161,27 @@ public class RestPermissionControler {
         return Respuesta;
 	}	
 
+	// Eliminación de permiso con validacion de token.
 	@DeleteMapping(path = {"/{id}"})
-	public AnsPermPagOpc Eliminar(@PathVariable("id") String id){
+	public AnsPermPagOpc Eliminar(HttpServletRequest peticion,
+								  @PathVariable("id") String id){
 		AnsPermPagOpc Respuesta = new AnsPermPagOpc();
 		System.out.print(" + RestPermissionControler Eliminar id: " + id + " \n");
+    	String token = peticion.getHeader("Authorization");
+    	System.out.print("\n\n + RestPermissionControler: " + token + "\n ");
+    	
+		if (token != null) {
+			String user = Jwts.parser()
+					.setSigningKey("0neProj3ct")
+					.parseClaimsJws(token.replace("Bearer",  ""))
+					.getBody()
+					.getSubject();
+			System.out.print("\n\n + RestAppUserController Usuario: " + user + "\n ");
+		}	else	{
+			Respuesta.setCr("99");
+			Respuesta.setDescripcion("Petición sin token");		
+			return Respuesta;
+			}
 
 //	    PermissionId Clave = new PermissionId();
 	    Integer idRol = Integer.valueOf(id);

@@ -70,6 +70,9 @@ public class RestAppUserController {
 //		return repAppUser.findByEnabled(enabled);
 //	}
 
+	
+	// Consulta de lista de todos los usuarios con validacion de token.
+	
 	@GetMapping
 	public AnsUserPag listar(HttpServletRequest peticion){
 		boolean enabled = true;
@@ -95,26 +98,60 @@ public class RestAppUserController {
 		return respuesta;
 	}
 
+	// Consulta de un usuario con validacion de token.
+	
     @GetMapping(path = {"/{id}"})
-    public AnsUserPagOpc listarId(@PathVariable("id") String id){
+    public AnsUserPagOpc listarId(HttpServletRequest peticion, @PathVariable("id") String id){
+		boolean enabled = true;
         AnsUserPagOpc respuesta = new AnsUserPagOpc();
-    	System.out.print(" + RestAppUserController listarId id: " + id + "\n ");
-    	respuesta.setCr("00");
-    	respuesta.setDescripcion("Correcto");
-    	respuesta.setContenido(repAppUser.findByUsername(id));
+
+		String token = peticion.getHeader("Authorization");
+		System.out.print("\n\n + RestAppUserController token: " + token + "\n ");
+		if (token != null) {
+			String user = Jwts.parser()
+					.setSigningKey("0neProj3ct")
+					.parseClaimsJws(token.replace("Bearer",  ""))
+					.getBody()
+					.getSubject();
+			System.out.print("\n\n + RestAppUserController Usuario: " + user + "\n ");
+			respuesta.setCr("00");
+			respuesta.setDescripcion("Correcto");	
+			respuesta.setContenido(repAppUser.findByUsername(id));			
+		}else
+		{
+			respuesta.setCr("99");
+			respuesta.setDescripcion("Petición sin token");		
+			}
         return respuesta;
     }
 
     
-    
+	// Consulta de un usuario con filtro y validacion de token.
+   
     @GetMapping(path = {"like/{id}"})
-    public AnsUserPag listarLike(@PathVariable("id") String id){
+    public AnsUserPag listarLike(HttpServletRequest peticion, @PathVariable("id") String id){
     	String like = "%" + id + "%";
     	AnsUserPag respuesta = new AnsUserPag();
     	System.out.print(" + RestAppUserController listarId id: " + like + "\n ");
-    	respuesta.setCr("00");
-    	respuesta.setDescripcion("Correcto");
-    	respuesta.setContenido(repAppUser.findByFirstname(like));
+    	
+		String token = peticion.getHeader("Authorization");
+		System.out.print("\n\n + RestAppUserController token: " + token + "\n ");
+		if (token != null) {
+			String user = Jwts.parser()
+					.setSigningKey("0neProj3ct")
+					.parseClaimsJws(token.replace("Bearer",  ""))
+					.getBody()
+					.getSubject();
+			System.out.print("\n\n + RestAppUserController Usuario: " + user + "\n ");
+	    	respuesta.setCr("00");
+	    	respuesta.setDescripcion("Correcto");
+	    	respuesta.setContenido(repAppUser.findByFirstname(like));		
+		}else
+		{
+			respuesta.setCr("99");
+			respuesta.setDescripcion("Petición sin token");		
+			}
+
         return respuesta;
     }
     
@@ -126,7 +163,7 @@ public class RestAppUserController {
         return repAppUser.findDistinctByName();
     }
 */
-    
+	// Consulta de usuarios con paginacion y validacion de token.
     @GetMapping(path = {"/pag"})
     public AnsUserPagList listarPag(@RequestParam(required = false, value = "page") int page,
     		                    @RequestParam(required = false, value = "perpage") int perPage, 
@@ -199,7 +236,8 @@ public class RestAppUserController {
 		 respuesta.setDescripcion("Correcto");
          return respuesta;
     }
-
+    
+	// Consulta de usuarios por filtro con paginacion y validacion de token.
     @GetMapping(path = {"/paglike"})
     public AnsUserPagList listarPagLike(@RequestParam(required = false, value = "page") int page,
     		                    @RequestParam(required = false, value = "perpage") int perPage, 
@@ -272,11 +310,29 @@ public class RestAppUserController {
          return respuesta;
     }
 
-    
+	// Alta de usuario con validacion de token y registro de log.    
 	@PostMapping
-	public  AnsUserPagOpc  creaUsuario(@RequestBody AppUser NuevoUsuario){
+	public  AnsUserPagOpc  creaUsuario(HttpServletRequest peticion,
+			                          @RequestBody AppUser NuevoUsuario){
 		AnsUserPagOpc respuesta = new AnsUserPagOpc();
+    	String token = peticion.getHeader("Authorization");
+		System.out.print("\n\n + RestAppUserController token: " + token + "\n ");
+
 		registrar.registra("creaUsuario", "AppUser", "/Users", NuevoUsuario);
+	
+		if (token != null) {
+			String user = Jwts.parser()
+					.setSigningKey("0neProj3ct")
+					.parseClaimsJws(token.replace("Bearer",  ""))
+					.getBody()
+					.getSubject();
+			System.out.print("\n\n + RestAppUserController Usuario: " + user + "\n ");
+		}	else	{
+			respuesta.setCr("99");
+			respuesta.setDescripcion("Petición sin token");		
+			return respuesta;
+			}
+
     	try {
 			String idAppUser = NuevoUsuario.getUsername();
 	    	String CryptoPass = codificador.encode(NuevoUsuario.getPassword());
@@ -292,10 +348,29 @@ public class RestAppUserController {
 	    	}
 		}
 
+	// Modificacion de password con validacion de token y registro de log.    
 	@PutMapping(path = {"/{id}"})
-	public AnsUserPagOpc cambiaPassword(@PathVariable("id") String id, @RequestBody AppUser NuevoUsuario){
+	public AnsUserPagOpc cambiaPassword(HttpServletRequest peticion,
+			                             @PathVariable("id") String id,
+			                             @RequestBody AppUser NuevoUsuario){
 		AnsUserPagOpc respuesta = new AnsUserPagOpc();
 		String Password = NuevoUsuario.getPassword();
+		
+    	String token = peticion.getHeader("Authorization");
+		System.out.print("\n\n + RestAppUserController token: " + token + "\n ");
+		if (token != null) {
+			String user = Jwts.parser()
+					.setSigningKey("0neProj3ct")
+					.parseClaimsJws(token.replace("Bearer",  ""))
+					.getBody()
+					.getSubject();
+			System.out.print("\n\n + RestAppUserController Usuario: " + user + "\n ");
+		}	else	{
+			respuesta.setCr("99");
+			respuesta.setDescripcion("Petición sin token");		
+			return respuesta;
+			}
+		
     	String CryptoPass = codificador.encode(NuevoUsuario.getPassword());
     	System.out.print(" + RestAppUserController listarId id: " + id + " Password:  " + Password + " " + CryptoPass + " \\n");
     	try {
@@ -304,24 +379,7 @@ public class RestAppUserController {
 		System.out.print(" + Objeto: " + jsonInString);	
 		
 		registrar.registra("modificaPassword", "AppUser", "/Users/"+id, NuevoUsuario);
-		
-		
-//    	Date date = new Date();
-//    	LogTransacction log = new LogTransacction();
-//    	log.setActionName("modificaPassword");
-//    	log.setEntityName("AppUser");
-//    	log.setOfficeId(0);
-//    	log.setApiGetUrl("/Users/"+id);
-//    	log.setResourceId(0);
-//    	log.setSubresourceId(0);
-//    	log.setCommandAsJson(jsonInString);
-//    	log.setMakerId(0);
-//    	log.setMadeOnDate(date);
-//    	log.setCheckerId(0);
-//    	log.setCheckedOnDate(date);
-//    	log.setProcessingResultEnum(0);
-//		repLog.save(log);    	
-    	
+		    	
 		Optional<AppUser> UsuarioExistente = repAppUser.findByUsername(id);
 		NuevoUsuario = UsuarioExistente.get();
     	NuevoUsuario.setPassword(CryptoPass);
@@ -335,33 +393,35 @@ public class RestAppUserController {
     	}
 	}
 
+	// Modificacion de usuario con validacion de token y registro de log. 
 	@PutMapping
-	public AnsUserPagOpc modificar(@RequestBody AppUser NuevoUsuario){
+	public AnsUserPagOpc modificar(HttpServletRequest peticion,
+			                       @RequestBody AppUser NuevoUsuario){
 		AnsUserPagOpc respuesta = new AnsUserPagOpc();
 		String idAppUser = NuevoUsuario.getUsername();
- //   	String CryptoPass = codificador.encode(NuevoUsuario.getPassword());
- //   	NuevoUsuario.setPassword(CryptoPass);
+    	String token = peticion.getHeader("Authorization");
+		System.out.print("\n\n + RestAppUserController token: " + token + "\n ");
+		if (token != null) {
+			String user = Jwts.parser()
+					.setSigningKey("0neProj3ct")
+					.parseClaimsJws(token.replace("Bearer",  ""))
+					.getBody()
+					.getSubject();
+			System.out.print("\n\n + RestAppUserController Usuario: " + user + "\n ");
+		}	else	{
+			respuesta.setCr("99");
+			respuesta.setDescripcion("Petición sin token");		
+			return respuesta;
+			}
+		
     	try {
 		ObjectMapper mapper = new ObjectMapper();
 		String jsonInString = mapper.writeValueAsString(NuevoUsuario);
 		System.out.print(" + Objeto: " + jsonInString);		
 		registrar.registra("modificaUsuario", "AppUser", "/Users/", NuevoUsuario);
-		
-//    	Date date = new Date();
-//    	LogTransacction log = new LogTransacction();
-//    	log.setActionName("modificaUsuario");
-//    	log.setEntityName("AppUser");
-//    	log.setOfficeId(0);
-//    	log.setApiGetUrl("/Users");
-//    	log.setResourceId(0);
-//    	log.setSubresourceId(0);
-//    	log.setCommandAsJson(jsonInString);
-//    	log.setMakerId(0);
-//    	log.setMadeOnDate(date);
-//    	log.setCheckerId(0);
-//    	log.setCheckedOnDate(date);
-//    	log.setProcessingResultEnum(0);
-//		repLog.save(log);    	
+				
+		String CryptoPass = codificador.encode(NuevoUsuario.getPassword());
+	 	NuevoUsuario.setPassword(CryptoPass);
 
 		repAppUser.save(NuevoUsuario);
 		
@@ -371,15 +431,40 @@ public class RestAppUserController {
 		return respuesta;
 
     	} catch (Exception ex) {
-    		throw new ApiRequestException("Upsi");
+    		throw new ApiRequestException("Registro con incidencia");
     	}
 	}
 	
+	// Deshabilitacion de usuario con validacion de token y registro de log. 	
     @DeleteMapping(path = {"/{id}"})
-    public AnsUserPagOpc EliminarId(@PathVariable("id") String id){
+    public AnsUserPagOpc EliminarId(HttpServletRequest peticion,
+                                    @PathVariable("id") String id){
     	System.out.print(" + RestAppUserController EliminarId id: " + id + " ");
-    	AnsUserPagOpc Resultado = new AnsUserPagOpc();
+    	AnsUserPagOpc respuesta = new AnsUserPagOpc();
+    	
+    	String token = peticion.getHeader("Authorization");
+		System.out.print("\n\n + RestAppUserController token: " + token + "\n ");
+		if (token != null) {
+			String user = Jwts.parser()
+					.setSigningKey("0neProj3ct")
+					.parseClaimsJws(token.replace("Bearer",  ""))
+					.getBody()
+					.getSubject();
+			System.out.print("\n\n + RestAppUserController Usuario: " + user + "\n ");
+		}	else	{
+			respuesta.setCr("99");
+			respuesta.setDescripcion("Petición sin token");		
+			return respuesta;
+			}
+
     	Optional<AppUser> Usuario = repAppUser.findByUsername(id);
+    	
+		if (!Usuario.get().isEnabled()) {
+			respuesta.setCr("97");
+			respuesta.setDescripcion("Usuario ya inhabilitado");		
+			return respuesta;		
+			}	
+
     	AppUser UsuarioD = Usuario.get();
     	UsuarioD.setEnabled(false);
 
@@ -388,30 +473,14 @@ public class RestAppUserController {
     		String jsonInString =id;
     		System.out.print(" + Objeto: " + jsonInString);		
     		registrar.registra("eliminaUsuario", "AppUser", "/Users/"+id, UsuarioD);
-    		
-//        	Date date = new Date();
-//        	LogTransacction log = new LogTransacction();
-//        	log.setActionName("eliminaUsuario");
-//        	log.setEntityName("AppUser");
-//        	log.setOfficeId(0);
-//        	log.setApiGetUrl("/Users/"+id);
-//        	log.setResourceId(0);
-//        	log.setSubresourceId(0);
-//        	log.setCommandAsJson(jsonInString);
-//        	log.setMakerId(0);
-//        	log.setMadeOnDate(date);
-//        	log.setCheckerId(0);
-//        	log.setCheckedOnDate(date);
-//        	log.setProcessingResultEnum(0);
-//    		repLog.save(log);  
-    		
+    			
     		repAppUser.save(UsuarioD);
-    		Resultado.setContenido(Usuario);
-    		Resultado.setCr("00");
-    		Resultado.setDescripcion("Correcto");
-    		return Resultado; }
+    		respuesta.setContenido(Usuario);
+    		respuesta.setCr("00");
+    		respuesta.setDescripcion("Correcto");
+    		return respuesta; }
     	catch (Exception e) {
-    		Resultado.setDescripcion("Registro con incidencia");
-    		return Resultado;}
+    		respuesta.setDescripcion("Registro con incidencia");
+    		return respuesta;}
     }	
 }

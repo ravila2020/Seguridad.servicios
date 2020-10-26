@@ -1,6 +1,6 @@
 package com.mtto.sat.rest;
 
-import java.util.List;
+import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -17,6 +17,8 @@ import com.mtto.sat.modelo.AppUserRoleId;
 import com.mtto.sat.repositorio.IMAppUserRoleRepo;
 import com.mtto.sat.result.AnsUserRolList;
 
+import io.jsonwebtoken.Jwts;
+
 @CrossOrigin(origins = "http://localhost:4200",maxAge = 3600)
 @RestController
 @RequestMapping("/UserRol")
@@ -25,19 +27,55 @@ public class RessAURolController {
 	@Autowired
 	private IMAppUserRoleRepo userRolPermRel;
 
+	// Consulta de lista de todos los usuarios rol con validacion de token.
 	@GetMapping
-	public AnsUserRolList listar(){
+	public AnsUserRolList listar(HttpServletRequest peticion){
+    	String token = peticion.getHeader("Authorization");
+    	System.out.print("\n\n + RessAURolController token: " + token + "\n ");
 		AnsUserRolList Respuesta = new AnsUserRolList();
 	    System.out.print(" + RessAURolController listar \n");
+	    
+		if (token != null) {
+			String user = Jwts.parser()
+					.setSigningKey("0neProj3ct")
+					.parseClaimsJws(token.replace("Bearer",  ""))
+					.getBody()
+					.getSubject();
+			System.out.print("\n\n + RestAppUserController Usuario: " + user + "\n ");
+		}	else	{
+			Respuesta.setCr("99");
+			Respuesta.setDescripcion("Petición sin token");		
+			return Respuesta;
+			}
+	    
 	    Respuesta.setCr("00");
 	    Respuesta.setDescripcion("Correcto");
 	    Respuesta.setContenido(userRolPermRel.findAll());
 		return Respuesta;
 	}
 
+	// Consulta de un usuario - rol con validacion de token.	
 	@GetMapping(path = {"/{id}"})
-	public AnsUserRolList buscar(@PathVariable("id") String id){
+	public AnsUserRolList buscar(HttpServletRequest peticion, 
+								@PathVariable("id") String id){
+    	String token = peticion.getHeader("Authorization");
+    	System.out.print("\n\n + RessAURolControllertoken: " + token + "\n ");		
 		AnsUserRolList Respuesta = new AnsUserRolList();
+		
+		if (token != null) {
+			String user = Jwts.parser()
+					.setSigningKey("0neProj3ct")
+					.parseClaimsJws(token.replace("Bearer",  ""))
+					.getBody()
+					.getSubject();
+			System.out.print("\n\n + RestAppUserController Usuario: " + user + "\n ");
+		}	else	{
+			Respuesta.setCr("99");
+			Respuesta.setDescripcion("Petición sin token");		
+			return Respuesta;
+			}
+		
+
 
 	    System.out.print(" + RessAURolController buscar " + id + " \n");
 	    Respuesta.setCr("00");
@@ -60,10 +98,29 @@ public class RessAURolController {
 	 * return userRolPermRel.findById(Clave); }
 	 */
 	
+	
+	// Alta de un usuario - rol con validacion de token.	
 	@PostMapping
-	public AnsUserRolList insertar(@RequestBody AppUserRole NuevoUserRol){
-		AnsUserRolList Respuesta = new AnsUserRolList();
-		AppUserRole UserRolEnProceso = userRolPermRel.save(NuevoUserRol);
+	public AnsUserRolList insertar(HttpServletRequest peticion,
+									@RequestBody AppUserRole NuevoUserRol){
+    	String token = peticion.getHeader("Authorization");
+    	System.out.print("\n\n + RessAURolControllertoken: " + token + "\n ");	
+    	AnsUserRolList Respuesta = new AnsUserRolList();
+
+		if (token != null) {
+			String user = Jwts.parser()
+					.setSigningKey("0neProj3ct")
+					.parseClaimsJws(token.replace("Bearer",  ""))
+					.getBody()
+					.getSubject();
+			System.out.print("\n\n + RestAppUserController Usuario: " + user + "\n ");
+		}	else	{
+			Respuesta.setCr("99");
+			Respuesta.setDescripcion("Petición sin token");		
+			return Respuesta;
+			}
+    	
+    	AppUserRole UserRolEnProceso = userRolPermRel.save(NuevoUserRol);
 	
 	    AppUserRoleId Clave = new AppUserRoleId();
 	    
@@ -74,12 +131,31 @@ public class RessAURolController {
 	
 	}
 	
-	
+	// Eliminación de un usuario - rol con validacion de token.	
+
 	@DeleteMapping(path = {"/{id}"})
-	public AnsUserRolList Eliminar(@PathVariable("id") String id){
+	public AnsUserRolList Eliminar(HttpServletRequest peticion,
+								   @PathVariable("id") String id){
+    	String token = peticion.getHeader("Authorization");
+    	System.out.print("\n\n + RessAURolControllertoken: " + token + "\n ");	
+    	
 		AnsUserRolList Respuesta = new AnsUserRolList();
 	    System.out.print(" + RessAURolController Eliminar id: " + id + " \n");
 
+		if (token != null) {
+			String user = Jwts.parser()
+					.setSigningKey("0neProj3ct")
+					.parseClaimsJws(token.replace("Bearer",  ""))
+					.getBody()
+					.getSubject();
+			System.out.print("\n\n + RestAppUserController Usuario: " + user + "\n ");
+		}	else	{
+			Respuesta.setCr("99");
+			Respuesta.setDescripcion("Petición sin token");		
+			return Respuesta;
+			}
+	    
+	    
 	    AppUserRoleId Clave = new AppUserRoleId();
 	    Integer idRol = Integer.valueOf(id);
 		Clave.setAppUserId(idRol);
