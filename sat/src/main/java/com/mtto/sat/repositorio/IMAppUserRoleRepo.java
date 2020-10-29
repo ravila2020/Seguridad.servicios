@@ -1,6 +1,7 @@
 package com.mtto.sat.repositorio;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,6 +14,9 @@ public interface IMAppUserRoleRepo extends JpaRepository<AppUserRole, AppUserRol
 	
 	@Transactional	
 	List<AppUserRole> findAllByAppUserId(Integer RolId);
+
+//	@Transactional	
+//	Optional<AppUserRole> findAllByAppUserId(Integer RolId);	
 	
 	@Transactional	
 	List<AppUserRole> findAllByRoleId(Integer RolId);
